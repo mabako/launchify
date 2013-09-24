@@ -49,8 +49,6 @@ public class HeadphoneReceiver extends BroadcastReceiver {
                 int state = intent.getIntExtra("state", -1);
                 switch (state) {
                     case 0:
-                        // not plugged in
-                        SpotifyHelper.stop(context);
                         break;
                     case 1:
                         // plugged in

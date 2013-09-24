@@ -21,7 +21,6 @@
 
 package net.mabako.Launchify;
 
-import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
@@ -35,7 +34,8 @@ public final class SpotifyHelper {
     /**
      * Delay before Keycodes for Start are sent; this is mostly dependant on how long it takes Spotify to load.
      */
-    public static final int DELAY_MILLIS = 3000;
+    public static final int DELAY_MILLIS = 3500;
+
     /**
      * Name of the Spotify package.
      */
@@ -60,31 +60,19 @@ public final class SpotifyHelper {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
 
-        sendInput(context, true);
-    }
-
-    /**
-     * Stops the music regardless of the source.
-     *
-     * @param context Context
-     */
-    public static void stop(Context context) {
-        Log.i(SpotifyHelper.class.getName(), "stop");
-
-        sendInput(context, false);
+        sendInput(context);
     }
 
     /**
      * Sends some media keycode across the device.
      *
      * @param context Context to send it from
-     * @param start   whether or not to start it
      */
-    private static void sendInput(final Context context, final boolean start) {
+    private static void sendInput(final Context context) {
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                int keycode = start ? KeyEvent.KEYCODE_MEDIA_PLAY : KeyEvent.KEYCODE_MEDIA_STOP;
+                int keycode = KeyEvent.KEYCODE_MEDIA_PLAY;
                 Log.i(getClass().getName(), "Sending Keycode " + keycode);
                 Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
                 intent.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_UP, keycode));
@@ -93,24 +81,8 @@ public final class SpotifyHelper {
             }
         };
 
-        boolean isRunning = false;
-        if (start) {
-            ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-            for (ActivityManager.RunningAppProcessInfo pi : am.getRunningAppProcesses()) {
-                if (SPOTIFY_PACKAGE_NAME.equals(pi.processName)) {
-                    isRunning = true;
-                    break;
-                }
-            }
-
-            Log.i(SpotifyHelper.class.getName(), "Spotify is " + (!isRunning ? "not " : "") + "running");
-        }
-
         Handler handler = new Handler();
-        if (start && !isRunning) {
-            handler.postDelayed(r, DELAY_MILLIS);
-        } else {
-            handler.post(r);
-        }
+        handler.post(r);
+        handler.postDelayed(r, DELAY_MILLIS);
     }
 }

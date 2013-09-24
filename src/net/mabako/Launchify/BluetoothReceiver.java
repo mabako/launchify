@@ -21,10 +21,10 @@
 
 package net.mabako.Launchify;
 
+import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 /**
  * Bluetooth-Receiver.
@@ -32,7 +32,14 @@ import android.util.Log;
  * @author Marcus Bauer
  */
 public class BluetoothReceiver extends BroadcastReceiver {
+    /**
+     * Called after the A2DP initialization, so we can stream things.
+     *
+     * @param context context
+     * @param intent  the intent that was received
+     */
     public void onReceive(Context context, Intent intent) {
-        Log.i(BluetoothReceiver.class.getName(), "Intent " + intent.getAction());
+        if (intent.getIntExtra(BluetoothProfile.EXTRA_STATE, -2) == BluetoothProfile.STATE_CONNECTING)
+            SpotifyHelper.start(context);
     }
 }
